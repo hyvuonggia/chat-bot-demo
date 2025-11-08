@@ -1,4 +1,5 @@
 from typing import Annotated, List, TypedDict
+import sqlite3
 from langchain_core.messages import AnyMessage, SystemMessage
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.func import END, START
@@ -20,7 +21,7 @@ def chat_node(state: ChatState) -> ChatState:
 
     system_msg = SystemMessage(content=SYSTEM_PROMPT)
 
-    ai_message = llm.invoke(messages=[system_msg] + state["messages"])
+    ai_message = llm.invoke([system_msg] + state["messages"])
     return {"messages": [ai_message]}
 
 graph.add_node("chat", chat_node)
@@ -28,5 +29,7 @@ graph.add_edge(START, "chat")
 graph.add_edge("chat", END)
 
 def build_graph():
-    checkpointer = SqliteSaver.from_conn_string(f"sqlite:///{settings.sqlite_path}")
+    # Create SQLite connection and pass to SqliteSaver constructor
+    conn = sqlite3.connect(settings.sqlite_path, check_same_thread=False)
+    checkpointer = SqliteSaver(conn)
     return graph.compile(checkpointer=checkpointer)
