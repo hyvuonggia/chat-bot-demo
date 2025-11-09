@@ -16,4 +16,4 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     session_id: str = Field(..., description="Unique identifier for the chat session")
     content: str = Field(..., description="The assistant's response content")
-    model: Optional[str] = Field(None, description="The model used to generate the response")
+    llm_model: Optional[str] = Field(None, description="The model used to generate the response")
