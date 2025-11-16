@@ -32,6 +32,10 @@ dependencies = [
   "tenacity>=8.3.0",
   # Env
   "python-dotenv>=1.0.1",
+  # Vector store
+  "langchain-community>=0.2.0",  # For loaders/splitters
+  "langchain-chroma>=0.1.0",      # The Chroma vector store integration
+  "tiktoken>=0.7.0",              # Tokenizer for embeddings
 ]
 
 [project.optional-dependencies]

@@ -15,6 +15,9 @@ class Settings(BaseSettings):
 
     # LangGraph checkpointing (SQLite path)
     sqlite_path: str = Field(".data/checkpoints.sqlite3", alias="LANGGRAPH_SQLITE_PATH")
+    
+    #chroma_db_path
+    chroma_db_path: str = Field(".data/chroma_db", alias="CHROMA_DB_PATH")
 
     # Server/runtime
     app_env: str = Field("dev", alias="APP_ENV")
