@@ -1,4 +1,5 @@
 
+from langchain_community.tools import tool
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 
@@ -7,7 +8,6 @@ from app.adapters.providers.openai_client import settings
 # Init embedding model
 embeddings = OpenAIEmbeddings(
     model=settings.openai_embed_model, 
-    openai_api_key=settings.openai_api_key
 )
 
 # Init vector store (Chroma)
@@ -24,3 +24,13 @@ retriever = vector_store.as_retriever(
         "score_threshold": 0.5
         }
 )
+
+@tool
+def search_knowledge_base(query: str) -> str:
+    """Function to search knowledge base using the retriever."""
+    docs = retriever.invoke(query)
+   
+    if not docs:
+         return "No relevant documents found."
+
+    return "\n\n".join(f"[Source: {doc.metadata.get("source", "Unknown")}]" for doc in docs)
