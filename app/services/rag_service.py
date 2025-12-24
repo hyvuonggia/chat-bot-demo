@@ -18,19 +18,34 @@ vector_store = Chroma(
 )
 
 retriever = vector_store.as_retriever(
-    search_type="similarity_score_threshold",
+    search_type="similarity",
     search_kwargs={
-        "k": 5,
-        "score_threshold": 0.5
+        "k": 30
         }
 )
 
 @tool
 def search_knowledge_base(query: str) -> str:
-    """Function to search knowledge base using the retriever."""
+    """Search the knowledge base for relevant information to answer user questions.
+    
+    Use this tool whenever a user asks a question that requires factual information.
+    This tool searches through documents and returns relevant content.
+    
+    Args:
+        query: The search query or question to look up in the knowledge base.
+        
+    Returns:
+        Relevant information from the knowledge base, or a message if nothing is found.
+    """
+    print(f"[DEBUG RAG] search_knowledge_base called with query: {query}")
     docs = retriever.invoke(query)
+    print(f"[DEBUG RAG] Retrieved {len(docs)} documents")
    
     if not docs:
+         print("[DEBUG RAG] No documents found, returning empty message")
          return "No relevant documents found."
 
-    return "\n\n".join(f"[Source: {doc.metadata.get("source", "Unknown")}]" for doc in docs)
+    result = "\n\n".join(f"[Source: {doc.metadata.get('source', 'Unknown')}]\n{doc.page_content}" for doc in docs)
+    print(f"[DEBUG RAG] Returning result with {len(result)} characters")
+    print(f"[DEBUG RAG] First 200 chars: {result[:200]}...")
+    return result

@@ -1,7 +1,7 @@
 from multiprocessing import connection
 import sqlite3
 from typing import Annotated, List, TypedDict
-from chromadb.app import settings
+from app.core.config import settings
 from langchain_core.documents import Document
 from langchain_core.messages import AnyMessage, SystemMessage
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -29,8 +29,15 @@ def agent_node(state: ChatState) -> ChatState:
     A) A standard text message (AIMessage.content = "Hello")
     B) A tool call request (AIMessage.tool_calls = [...])
     """
+    print(f"[DEBUG AGENT] agent_node called with {len(state['messages'])} messages")
     messages = [SystemMessage(content=SYSTEM_PROMPT)] + state["messages"]
-    response = llm_with_tools.invoke(messages=messages)
+    response = llm_with_tools.invoke(messages)
+    
+    print(f"[DEBUG AGENT] Response type: {type(response).__name__}")
+    print(f"[DEBUG AGENT] Response has tool_calls: {hasattr(response, 'tool_calls') and len(response.tool_calls) > 0}")
+    if hasattr(response, 'tool_calls') and response.tool_calls:
+        print(f"[DEBUG AGENT] Tool calls: {[tc.get('name') for tc in response.tool_calls]}")
+    print(f"[DEBUG AGENT] Response content: {response.content[:200] if response.content else 'None'}...")
     
     return ChatState(
         messages=[response]
@@ -47,7 +54,7 @@ def build_graph():
     graph.add_edge("tools", "agent")
 
     conn = sqlite3.connect(settings.sqlite_path, check_same_thread=False)
-    checkpointer = SqliteSaver(connection=conn)
+    checkpointer = SqliteSaver(conn=conn)
     
     return graph.compile(checkpointer=checkpointer)
 

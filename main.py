@@ -1,9 +1,10 @@
-import os
-from openai import OpenAI
-os.environ["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY", "")
-client = OpenAI()
-# List models (lightweight metadata call; fails fast if key invalid)
-models = client.models.list()
-for model in models.data:
-    print("Model ID:", model.id)
-print("OK: OpenAI reachable, model count:", len(models.data))
+import uvicorn
+from fastapi import FastAPI
+from app.api.routes import router
+
+app = FastAPI(title="RAG Chatbot Agent")
+
+app.include_router(router)
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
