@@ -1,13 +1,13 @@
 import glob
 
+# --- FIX: Import OpenAIEmbeddings from the correct LangChain package ---
+from langchain_openai import OpenAIEmbeddings 
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import TextLoader
-from langchain_core import documents
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from openai import embeddings
+
 
 from app.services.rag_service import settings
-
 
 def ingest_documents():
     print("--- 1. INGESTING DOCUMENTS FROM KNOWLEDGE BASE... ---")
@@ -46,7 +46,8 @@ def ingest_documents():
     print(f"Total chunks created: {len(chunks)}")
     
     print("--- 3. SAVING CHUNKS TO VECTOR STORE... ---")
-    embeddings_model = embeddings.OpenAIEmbeddings(
+    
+    embeddings_model = OpenAIEmbeddings(
         model=settings.openai_embed_model,
     )
     
@@ -63,9 +64,5 @@ def ingest_documents():
     else:
         print("No chunks to add to the vector store.")
         
-        
 if __name__ == "__main__":
     ingest_documents()
-        
-        
-    
